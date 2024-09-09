@@ -12,6 +12,8 @@ $code = $_POST['serviceCode'];
 
 
 
+include("funcoes.php");
+include("enviardinheiro.php");
 
 $mode = "menu";
 
@@ -39,7 +41,7 @@ switch ($ussd_array[0]) {
 		$mode = "menu";
 		break;
 	case '1':
-		$mode = "create";
+		$mode = "enviar";
 		break;
 	case '2':
 		$mode = "balance";
@@ -62,7 +64,7 @@ if ($level == 1) {
 				displayMenu();
 				break;
 			case '1':
-				createAccount();
+				enviardinheiro();
 				break;
 			case '2':
 				checkBalance();
@@ -78,24 +80,32 @@ if ($level == 1) {
 				displayError();
 				break;
 		}
-	} else if ($mode == "create") {
-		switch ($text) {
-			case '1':
-				createAccount();
-				break;
-			case '1*1':
-				echo "END You choose \n Male";
-				break;
-			case '1*2':
-				echo "END You choose \n Female";
-				break;
-			case '1*3':
-				echo "END You choose \n Not Now";
-				break;
+	} else if ($mode == "enviar") {
+		if((count($ussd_array)>2  and count($ussd_array)==3)  and $ussd_array[2]>5){
+			inserirValor();
+		}elseif((count($ussd_array)>3 and count($ussd_array)==4)){
+			inserirPin($ussd_array[2],$ussd_array[3],"0,2%");
+		}elseif((count($ussd_array)>4 and count($ussd_array)==5)){
+			Enviou($ussd_array[2],$ussd_array[3],"0,2%");
+		}else{
+			switch ($text) {
+				case '1':
+					enviardinheiro();
+					break;
+				case '1*1':
+					inserirTelefone();
+					break;
+				case '1*2':
+					inserirIBAN();
+					break;
+				case '1*3':
+					inserirBINIF();
+					break;
 
-			default:
-				displayError();
-				break;
+				default:
+					displayError();
+					break;
+			}
 		}
 	} else if ($mode == "balance") {
 		checkBalance();
@@ -119,52 +129,4 @@ if ($level == 1) {
 				break;
 		}
 	}
-}
-
-function displayMenu()
-{
-	$text = "CON USSD Testing \n";
-	$text .= "1. Create Account \n";
-	$text .= "2. Check Balance \n";
-	$text .= "3. Check My Number \n";
-	$text .= "4. Send Money \n";
-	$text .= "5. Buy Books \n";
-	$text .= "44. Next \n";
-	echo $text;
-}
-function createAccount()
-{
-	$text = "CON Creating Account\n";
-	$text .= "1. Male \n";
-	$text .= "2. Woman \n";
-	$text .= "3. Not Now \n";
-	echo $text;
-}
-function checkBalance()
-{
-	$text = "END Account Balance\n";
-	$text .= "Your account Balance is 43,050Rwf \n";
-	echo $text;
-}
-function displayError()
-{
-	$text = "END Error\n";
-	$text .= "Uknown USSD command \n";
-	echo $text;
-}
-function checkNumber()
-{
-
-	$text = "END Ckeck Number\n";
-	$number = $_POST['phone'];
-	$text .= "Your number is " . $number . " \n";
-	echo $text;
-}
-function sendMoney()
-{
-	$text = "CON Send Money\n";
-	$text .= "1. MTN \n";
-	$text .= "2. TIGO \n";
-	$text .= "3. AIRTEL \n";
-	echo $text;
 }
